@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+{% block body %}
+        <h3 class="title is-4">File details</h3>
+        <table class="table is-narrow is-striped is-fullwidth">
+            <tbody>
+            <tr>
+                <td>Submitted by</td>
+                <td>{{ sessdata.username }}</td>
+            </tr>
+            <tr>
+                <td>Filename</td>
+                <td style="word-wrap: break-word; max-width: 500px;">{{ sessdata.filename }}</td>
+            </tr>
+            <tr>
+                <td>Date</td>
+                <td>{{ sessdata.createdon }}</td>
+            </tr>
+            <tr>
+                <td>Filesize</td>
+                <td>{{ sessdata.filesize }}</td>
+            </tr>
+            </tbody>
+        </table>
+        <h3 class="title is-4">Error Messages</h3>
+        <table class="table is-narrow is-striped is-fullwidth">
+            <tbody>
+            <thead>
+            <tr>
+                <th>Line No</th>
+                <th>Error Type</th>
+                <th>Error Message</th>
+                <th>Duplicates</th>
+                <th>Severity</th>
+            </tr>
+            </thead>
+            {% for err in errlist %}
+                <tr>
+                    <td>{{ err[0].lineno }}</td>
+                    <td class="{% if err[0].errtype == "WARNING" %}
+                        is-warning
+                        {% elif err[0].errtype == "ERROR" %}
+                        is-danger
+                        {% else %}
+                        is-info
+                        {% endif %}">{{ err[0].errtype }}</td>
+                    <td>{{ err[0].errmsg }}</td>
+                    <td>{{ err[0].numofdups }}</td>
+                    <td style="background-color:rgb(255,
+                        {{ 255-err[1]/5*255 }}, {{ 255-err[1]/5*255 }})">{{ err[1] }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td>No Entries</td>
+            {% endfor %}
+            </tbody>
+        </table>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+{% block body %}
+        <script>
+$(document).ready(function(){
+    $('select').change(function() {
+        var elem = $(this)
+        var rating = this.value;
+        var optid = $(this).attr("data-id");
+        $.post("submitrating", 
+                {
+                    rating:rating,
+                    id:optid
+                },
+                function(data, status){
+                if(status=="success"){
+                    console.log("Success");
+                    console.log(data);
+                }
+                });
+    });
+});
+        </script>
+        <h3 class="title is-4">Rate the severity of Errors/Warnings</h3>
+        <table class="table is-narrow is-striped is-fullwidth">
+            <tbody>
+            <thead>
+            <tr>
+                <th>Error Message</th>
+                <th>Severity</th>
+            </tr>
+            </thead>
+            {% for err in errlist %}
+                <tr>
+                    <td>{{ err.errmsg }}</td>
+                    <td>
+                        <div class="select">
+                            <select data-id={{ err.id }}>
+                                <option value=0{% if err.rating==0 %} selected="selected"{% endif %}>Unrated</option>
+                                <option value=1{% if err.rating==1 %} selected="selected"{% endif %}>1</option>
+                                <option value=2{% if err.rating==2 %} selected="selected"{% endif %}>2</option>
+                                <option value=3{% if err.rating==3 %} selected="selected"{% endif %}>3</option>
+                                <option value=4{% if err.rating==4 %} selected="selected"{% endif %}>4</option>
+                                <option value=5{% if err.rating==5 %} selected="selected"{% endif %}>5</option>
+                            </select>
+                        </div>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td>No Entries</td>
+            {% endfor %}
+            </tbody>
+        </table>
+{% endblock %}

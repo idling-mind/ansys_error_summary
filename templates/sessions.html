@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% block body %}
+        <h3 class="title is-4">Error Messages</h3>
+        <table class="table is-narrow is-striped is-fullwidth">
+            <tbody>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Submitted By</th>
+                <th>Filename</th>
+                <th>Created on</th>
+                <th>File size</th>
+                <th>Link</th>
+            </tr>
+            </thead>
+            {% for session in sessions %}
+                <tr>
+                    <td>{{ session.sessionid }}</td>
+                    <td>{{ session.username }}</td>
+                    <td>{{ session.filename | basename }}</td>
+                    <td>{{ session.createdon }}</td>
+                    <td>{{ session.filesize }}</td>
+                    <td><a href={{ url_for('session',sessionid=session.sessionid) }}>Link</a></td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td>No Entries</td>
+            {% endfor %}
+            </tbody>
+        </table>
+{% endblock %}

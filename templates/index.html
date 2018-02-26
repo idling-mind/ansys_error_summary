@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+{% block body %}
+        <h3 class="title is-4">Unique errors</h3>
+        <table class="table is-striped is-hoverable is-fullwidth">
+            <tbody>
+            <tbody>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Error type</th>
+                <th>Error Message</th>
+                <th>Severity</th>
+                <th>Occurance</th>
+            </tr>
+            </thead>
+            {% for err in errlist %}
+                <tr>
+                    <td>{{ err.id }}</td>
+                    <td class="{% if err.errtype == "WARNING" %}
+                        is-warning
+                        {% elif err.errtype == "ERROR" %}
+                        is-danger
+                        {% else %}
+                        is-info
+                        {% endif %}">{{ err.errtype }}</td>
+                    <td>{{ err.errmsg }}</td>
+                    <td style="background-color:rgb(255,
+                        {{ 255-err.rating/5*255 }}, {{ 255-err.rating/5*255
+                        }})">{{ err.rating }}</td>
+                    <td>{{ err.repeated }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td>No Entries</td>
+            {% endfor %}
+            </tbody>
+        </table>
+{% endblock %}

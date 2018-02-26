@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block body %}
+        <h3 class="title is-4">Unique errors</h3>
+        <table class="table is-striped is-hoverable is-fullwidth">
+            <tbody>
+            <tbody>
+            <thead>
+            <tr>
+                <th>Error type</th>
+                <th>Error Message</th>
+                <th>Severity</th>
+                <th>Repeated</th>
+            </tr>
+            </thead>
+            {% for err in errlist %}
+                <tr>
+                    <td>{{ err.errtype }}</td>
+                    <td>{{ err.errmsg }}</td>
+                    <td>{{ err.rating }}</td>
+                    <td>{{ err.repeated }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td>No Entries</td>
+            {% endfor %}
+            </tbody>
+        </table>
+{% endblock %}
