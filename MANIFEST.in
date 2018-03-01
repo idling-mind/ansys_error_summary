@@ -1,0 +1,3 @@
+graft errhost/templates
+graft errhost/static
+include errhost/schema.sql

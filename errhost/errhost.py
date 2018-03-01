@@ -58,7 +58,19 @@ def basename(path):
 def index():
     cur = g.db.execute('select * from uniq_errors')
     errlist = cur.fetchall()
-    return render_template('index.html', errlist=errlist)
+    curr = g.db.execute('select count(*) from sessions')
+    err_file_count = curr.fetchone()[0]
+    curr = g.db.execute('select count(*) from uniq_errors')
+    uniq_err_count = curr.fetchone()[0]
+    curr = g.db.execute('select sum(filesize) from sessions')
+    data_processed = curr.fetchone()[0]
+    curr = g.db.execute('select count(distinct username) from sessions')
+    no_of_users = curr.fetchone()[0]
+    stats = {"err_file_count":err_file_count,
+             "uniq_err_count":uniq_err_count,
+             "data_processed":data_processed,
+             "no_of_users":no_of_users}
+    return render_template('index.html', errlist=errlist, stats=stats)
 
 @app.route("/submit", methods=['POST'])
 def submit():

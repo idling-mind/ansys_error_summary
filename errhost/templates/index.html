@@ -1,0 +1,67 @@
+{% extends "layout.html" %}
+{% block body %}
+    <h3 class="title is-4">Error Statistics</h3>
+    <div class="columns">
+        <div class="column">
+            <div class="notification is-danger">
+                <h1 class="title is-h1">{{ stats.err_file_count }}</h1>
+                <h6 class="subtitle is-h6">Number of Error Files</h6>
+            </div>
+        </div>
+        <div class="column">
+            <div class="notification is-warning">
+                <h1 class="title is-h1">{{ stats.uniq_err_count }}</h1>
+                <h6 class="subtitle is-h6">Unique Warnings/Errors</h6>
+            </div>
+        </div>
+        <div class="column">
+            <div class="notification is-info">
+                <h1 class="title is-h1">{{ (stats.data_processed/10**9) |
+                    int }} GB</h1>
+                <h6 class="subtitle is-h6">Error Data Processed</h6>
+            </div>
+        </div>
+        <div class="column">
+            <div class="notification is-success">
+                <h1 class="title is-h1">{{ stats.no_of_users }}</h1>
+                <h6 class="subtitle is-h6">Number of Users</h6>
+            </div>
+        </div>
+    </div>
+    <h3 class="title is-4">Unique errors</h3>
+    <table class="table is-striped is-hoverable is-fullwidth">
+        <tbody>
+        <tbody>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Error type</th>
+            <th>Error Message</th>
+            <th>Severity</th>
+            <th>Occurance</th>
+        </tr>
+        </thead>
+        {% for err in errlist %}
+            <tr>
+                <td>{{ err.id }}</td>
+                <td class="{% if err.errtype == "WARNING" %}
+                    is-warning
+                    {% elif err.errtype == "ERROR" %}
+                    is-danger
+                    {% else %}
+                    is-info
+                    {% endif %}">{{ err.errtype }}</td>
+                <td>{{ err.errmsg }}</td>
+                <td style="background-color:rgb(255,
+                    {{ (255-err.rating/5*255) | int }}, 
+                    {{ (255-err.rating/5*255) | int }})
+                    ">{{ err.rating }}</td>
+                <td>{{ err.repeated }}</td>
+            </tr>
+        {% else %}
+            <tr>
+                <td>No Entries</td>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
