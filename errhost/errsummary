@@ -1,0 +1,112 @@
+#!/opt/anaconda3/bin/python3
+# This script will consolidate a long Ansys error file into a few lines.
+# It does this by clubbing together all similar warning/error messages.
+# This script also submits all the unique errors into a master database
+# located at http://aerox33799:5000.
+import sys
+import os
+import re
+import requests
+import json
+import getpass
+import datetime
+import webbrowser
+
+# Initializations
+#Confidence level for checking the similarity between two error messages
+conf = 0.7 
+
+flag = False
+etype = err = errp =  ""
+dup_count = 0
+line_num = 0
+elist = []
+
+# Checking if only one error file is given at a time.
+if len(sys.argv) == 2:
+    errfile = sys.argv[1]
+    print("File: {}\n".format(errfile))
+else:
+    print("{} accepts one error file as argument"
+            .format(sys.argv[0]), file=sys.stderr)
+    sys.exit(0)
+
+def compare_errs(err1, err2, conf):
+    """Function to compare two error strings and decide
+    if they are simlar or not. Accepts two strings and a
+    confidence level."""
+    err1 = re.sub("\d+", "", err1)
+    err2 = re.sub("\d+", "", err2)
+    hit = 0
+    for e1, e2 in zip(err1.split(), err2.split()):
+        if e1 == e2:
+            hit += 1
+    if hit/len(err2.split()) > conf:
+        return True
+    else:
+        return False
+
+# Ansys warning messages come in multiple lines.
+# All these lines are combined together into one error message
+# and put into a list.
+with open(errfile, 'r') as efile:
+    for line in efile:
+        line_num+=1
+        if "***" in line:
+            if etype:
+                elist.append([etype, err, eline])
+            etype = line.strip().split("***")[1].strip()
+            eline = line_num
+            err = ""
+        elif etype:
+            err += " " + line.strip()
+    if etype:
+        elist.append([etype, err, eline])
+
+# This list is sorted so that its easy to remove all duplicates.
+elist = sorted(elist, key=lambda s: s[1])
+# Error messages will be stored in this list after removal of duplicates
+filtered_list = [] 
+
+cur_err = ""
+for index, row in enumerate(elist):
+    if compare_errs(cur_err, elist[index][1], conf):
+        dup_count += 1
+    else:
+        if cur_err:
+            filtered_list.append([cur_err_type, cur_err, 
+                dup_count, cur_id])
+        cur_err_type = row[0]
+        cur_err = row[1]
+        cur_id = row[2]
+        dup_count = 0
+# Adding the last element
+filtered_list.append([cur_err_type, cur_err, dup_count, cur_id])
+
+# The filtered list is sorted based on line number
+filtered_list = sorted(filtered_list, key=lambda s: s[3])
+err_out_file = open('{}-ErrorSummary.out'.format(os.path.basename(errfile)), 'w')
+err_out_file.write("Line No : Err Type : Err Msg : Num of Duplicates\n")
+
+# Writing the filtered list to output file.
+for row in filtered_list:
+    err_out_file.write("{} : {} : {} : {}\n".format(row[3],row[0],row[1],row[2]))
+
+# Sending post request to the server
+user = getpass.getuser()
+curdate = str(datetime.datetime.now())
+fsize = os.path.getsize(errfile)
+errfile_abs = os.path.abspath(errfile)
+send_data={'user':user,'fname':errfile_abs, 'fsize':fsize, 'curdate': curdate,
+         'errors':filtered_list}
+try:
+    r = requests.post("http://aerox33799:5000/submit", 
+            data=json.dumps(send_data))
+    webbrowser.open(r.text, new=2, autoraise=True)
+    print("To see the summary either look for {} in the current working directory"
+            " or browse to {}".format(err_out_file.name, r.text))
+    err_out_file.write("\nError summary data stored in {}".format(r.text))
+except:
+    pass
+
+err_out_file.close()
