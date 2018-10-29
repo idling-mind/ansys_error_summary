@@ -4,4 +4,4 @@ submitted through linux commandline. The helper script is also included
 `errorsummary` which will consolidate the error file and submit it to the
 server.
 
-![](errhost/static/screenshot.jpg)
+![](errhost/static/screenshot.JPG)
